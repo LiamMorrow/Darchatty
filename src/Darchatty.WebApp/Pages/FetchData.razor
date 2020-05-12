@@ -4,15 +4,17 @@
 
 <h1>Chat</h1>
 
-<p>Hello @State.Name</p>
+<p>Hello <NameDisplay Name=@State.Name/></p>
 
 @code {
+    [Parameter]
+    public string Name { get; set; }
     protected override async Task OnInitializedAsync()
     {
         await Chat.RequestNameAsync();
-        State.PropertyChanged += (sender, e) => {
-            Console.WriteLine(State.Name);
+        State.PropertyChanged += (sender, e) =>
+        {
             StateHasChanged();
-            };
+        };
     }
 }
