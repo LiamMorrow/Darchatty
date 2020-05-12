@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Darchatty.Gateway", "Darchatty.Gateway\Darchatty.Gateway.csproj", "{1B21D106-2D51-4323-B1E8-169B297E801B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Darchatty.Gateway", "src\Darchatty.Gateway\Darchatty.Gateway.csproj", "{1B21D106-2D51-4323-B1E8-169B297E801B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Darchatty.Orleans.GrainInterfaces", "Darchatty.Orleans.GrainInterfaces\Darchatty.Orleans.GrainInterfaces.csproj", "{3311B9E3-7EA1-4CA1-9C3C-F16F136E6BCA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Darchatty.Orleans.GrainInterfaces", "src\Darchatty.Orleans.GrainInterfaces\Darchatty.Orleans.GrainInterfaces.csproj", "{3311B9E3-7EA1-4CA1-9C3C-F16F136E6BCA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Darchatty.Orleans.Grains", "Darchatty.Orleans.Grains\Darchatty.Orleans.Grains.csproj", "{D56595A6-C74B-4EF7-B889-EE695923496F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Darchatty.Orleans.Grains", "src\Darchatty.Orleans.Grains\Darchatty.Orleans.Grains.csproj", "{D56595A6-C74B-4EF7-B889-EE695923496F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Darchatty.Orleans.Silo", "Darchatty.Orleans.Silo\Darchatty.Orleans.Silo.csproj", "{4EA35CC0-D7BC-49AC-86D4-3CF381492805}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Darchatty.Orleans.Silo", "src\Darchatty.Orleans.Silo\Darchatty.Orleans.Silo.csproj", "{4EA35CC0-D7BC-49AC-86D4-3CF381492805}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{9F0A3C3D-3C93-4883-89D9-4CEE365A4216}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Darchatty.Tests", "test\Darchatty.Tests\Darchatty.Tests.csproj", "{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,5 +76,20 @@ Global
 		{4EA35CC0-D7BC-49AC-86D4-3CF381492805}.Release|x64.Build.0 = Release|Any CPU
 		{4EA35CC0-D7BC-49AC-86D4-3CF381492805}.Release|x86.ActiveCfg = Release|Any CPU
 		{4EA35CC0-D7BC-49AC-86D4-3CF381492805}.Release|x86.Build.0 = Release|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Debug|x64.Build.0 = Debug|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Debug|x86.Build.0 = Debug|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Release|x64.ActiveCfg = Release|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Release|x64.Build.0 = Release|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Release|x86.ActiveCfg = Release|Any CPU
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F2A57F0A-B812-472B-AF07-6DD1ED78FDEE} = {9F0A3C3D-3C93-4883-89D9-4CEE365A4216}
 	EndGlobalSection
 EndGlobal
