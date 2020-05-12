@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Darchatty.WebApp.Hubs;
+using Darchatty.Web.Hubs;
+using Darchatty.WebApp.Model;
+using Darchatty.WebApp.Configuration;
 
 namespace Darchatty.WebApp
 {
@@ -17,6 +21,12 @@ namespace Darchatty.WebApp
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
+            builder.Services.AddSingleton<IChatHub, ChatHubClient>();
+            builder.Services.AddSingleton<IState, State>();
+            builder.Services.AddSingleton(new GatewayConfiguration
+            {
+                Endpoint = "http://localhost:5100"
+            });
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             await builder.Build().RunAsync();
