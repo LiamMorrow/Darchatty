@@ -1,0 +1,31 @@
+{
+    "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+
+    "settings": {
+      "documentationRules": {
+        "documentExposedElements": false,
+        "documentInterfaces": false,
+        "documentInternalElements": false,
+        "documentPrivateElements": false,
+        "documentPrivateFields": false
+      },
+      "layoutRules": {
+        "newlineAtEndOfFile": "require"
+      },
+      "spacingRules": {
+
+      },
+      "orderingRules": {
+        "systemUsingDirectivesFirst": true,
+        "blankLinesBetweenUsingGroups": "allow",
+        "elementOrder": [
+          "kind",
+          "accessibility",
+          "constant",
+          "static",
+          "readonly"
+        ],
+        "usingDirectivesPlacement": "outsideNamespace"
+      }
+    }
+  }

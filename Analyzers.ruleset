@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Rules for SonarLint" Description="" ToolsVersion="14.0">
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+        <Rule Id="SA1101" Action="None" />
+        <Rule Id="SA0001" Action="None" />
+        <Rule Id="SA1633" Action="None" />
+        <Rule Id="SA1623" Action="None" />
+        <Rule Id="SA1515" Action="None" />
+        <!--Space before open parenthesis.  Breaks with the auto formatter for pattern matching tuples-->
+        <Rule Id="SA1008" Action="Hidden" />
+    </Rules>
+    <Rules AnalyzerId="Microsoft.VisualStudio.Threading" RuleNamespace="Microsoft.VisualStudio.Threading">
+        <Rule Id="VSTHRD003" Action="None" />
+    </Rules>
+    <Rules AnalyzerId="codeCracker.Csharp" RuleNamespace="codecracker.Csharp">
+        <!-- Force using var, no thank you-->
+        <Rule Id="CC0001" Action="None" />
+        <!--Null check function calls.  Static analysys for nulls nowadays-->
+        <Rule Id="CC0031" Action="None" />
+        <!--XML Documentation, not necessary-->
+        <Rule Id="CC0097" Action="None" />
+        <!--Dispose vars, broken with c# 8 using-->
+        <Rule Id="CC0022" Action="None" />
+        <!--Unused param.  Handled by IDE-->
+        <Rule Id="CC0057" Action="None"/>
+        <!--Dont want all methods to be static bruh-->
+        <Rule Id="CC0091" Action="Hidden"/>
+        <!--Use nameof.  Lots of false positives-->
+        <Rule Id="CC0021" Action="Hidden"/>
+        <!-- Async modifier, already covered by other analyzer, and broken-->
+        <Rule Id="CC0072" Action="None"/>
+        <!-- Unused method, already covered by stylecop -->
+        <Rule Id="CC0068" Action="None"/>
+        <!-- Async modifier, already covered by other analyzer, and broken-->
+        <Rule Id="CC0061" Action="None"/>
+    </Rules>
+</RuleSet>

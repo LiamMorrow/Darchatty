@@ -1,16 +1,16 @@
 using System;
-using System.Net.Http;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
+using Darchatty.Web.Hubs;
+using Darchatty.WebApp.Configuration;
+using Darchatty.WebApp.Hubs;
+using Darchatty.WebApp.Model;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Darchatty.WebApp.Hubs;
-using Darchatty.Web.Hubs;
-using Darchatty.WebApp.Model;
-using Darchatty.WebApp.Configuration;
 
 namespace Darchatty.WebApp
 {
@@ -25,7 +25,7 @@ namespace Darchatty.WebApp
             builder.Services.AddSingleton<IState, State>();
             builder.Services.AddSingleton(new GatewayConfiguration
             {
-                Endpoint = "http://localhost:5100"
+                Endpoint = "http://localhost:5100",
             });
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

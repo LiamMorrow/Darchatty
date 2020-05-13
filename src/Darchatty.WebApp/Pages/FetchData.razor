@@ -7,8 +7,8 @@
 <p>Hello <NameDisplay Name=@State.Name/></p>
 
 @code {
-    [Parameter]
-    public string Name { get; set; }
+    [Parameter()]
+    public string? Name { get; set; }
     protected override async Task OnInitializedAsync()
     {
         await Chat.RequestNameAsync();
