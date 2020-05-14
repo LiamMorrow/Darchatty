@@ -39,13 +39,22 @@ namespace Darchatty.Orleans.Silo
                         .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(ChatGrain).Assembly).WithReferences())
                         .ConfigureLogging(logging => { logging.AddConsole().SetMinimumLevel(LogLevel.Information); });
                     ConfigureClustering(siloBuilder, context.Configuration);
+                    ConfigureStorage(siloBuilder, context.Configuration);
                 })
                 .RunConsoleAsync();
         }
 
+        private static void ConfigureStorage(ISiloBuilder siloBuilder, IConfiguration configuration)
+        {
+            if (configuration.GetValue("StorageMode", "memory") == "memory")
+            {
+                siloBuilder.AddMemoryGrainStorageAsDefault();
+            }
+        }
+
         private static void ConfigureClustering(ISiloBuilder siloBuilder, IConfiguration configuration)
         {
-            if (configuration.GetValue<string>("ClusterMode", "local") == "local")
+            if (configuration.GetValue("ClusterMode", "local") == "local")
             {
                 siloBuilder.UseLocalhostClustering();
             }
