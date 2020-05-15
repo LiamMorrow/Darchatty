@@ -2,6 +2,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Darchatty.Web\Darchatty.Web.csproj" />
+    <ProjectReference Include="..\Darchatty.Orleans.GrainInterfaces\Darchatty.Orleans.GrainInterfaces.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Orleans.Client" Version="3.1.6" />
+    <PackageReference Include="Orgnalr.SignalR" Version="1.2.1" />
+    <PackageReference Include="Orleans.Clustering.Kubernetes" Version="1.2.2" />
   </ItemGroup>
 
   <PropertyGroup>
