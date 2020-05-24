@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Darchatty.Orleans.Grains\Darchatty.Orleans.Grains.csproj" />
+    <ProjectReference Include="..\Darchatty.Web\Darchatty.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

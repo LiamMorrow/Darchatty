@@ -1,9 +1,12 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Darchatty.Web.Model;
 
 namespace Darchatty.Web.Clients
 {
     public interface IChatClient
     {
-        Task RecieveNameAsync(string name);
+        Task NewChatInfoAsync(Guid chatId);
     }
 }

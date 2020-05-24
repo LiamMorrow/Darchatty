@@ -5,6 +5,7 @@ using Orleans;
 namespace Darchatty.Orleans.Grains
 {
     public abstract class TimedPersistGrain<T> : Grain<T>
+    where T : notnull
     {
         protected bool Dirty { get; set; }
 

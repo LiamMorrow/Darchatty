@@ -1,8 +1,8 @@
 using System;
 
-namespace Darchatty.Orleans.GrainInterfaces.Model
+namespace Darchatty.Web.Model
 {
-    public class ChatMessage
+    public class ChatMessageDto
     {
         public int ChatMessageNumber { get; set; }
 

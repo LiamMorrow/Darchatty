@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Darchatty.Orleans.Grains;
+using Darchatty.Web.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,6 +38,7 @@ namespace Darchatty.Orleans.Silo
                         })
                         .AddOrgnalRWithMemoryGrainStorage()
                         .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(ChatGrain).Assembly).WithReferences())
+                        .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(ChatMessageDto).Assembly).WithReferences())
                         .ConfigureLogging(logging => { logging.AddConsole().SetMinimumLevel(LogLevel.Information); });
                     ConfigureClustering(siloBuilder, context.Configuration);
                     ConfigureStorage(siloBuilder, context.Configuration);

@@ -1,21 +1,27 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
+using Darchatty.Web.Model;
 
 namespace Darchatty.WebApp.Model
 {
-    public class State : IState
+    public class State
     {
-        private string? name;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        public string? Name
+        public State(
+            Guid? userId,
+            IReadOnlyDictionary<Guid, ChatState> chats,
+            IReadOnlyDictionary<Guid, ParticipantState> participants)
         {
-            get => name;
-            set
-            {
-                name = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
-            }
+            UserId = userId;
+            Chats = chats;
+            Participants = participants;
         }
+
+        public Guid? UserId { get; }
+
+        public IReadOnlyDictionary<Guid, ChatState> Chats { get; }
+
+        public IReadOnlyDictionary<Guid, ParticipantState> Participants { get; }
     }
 }

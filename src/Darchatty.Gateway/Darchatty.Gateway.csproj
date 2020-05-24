@@ -6,6 +6,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="3.1.4" />
     <PackageReference Include="Microsoft.Orleans.Client" Version="3.1.6" />
     <PackageReference Include="Orgnalr.SignalR" Version="1.2.1" />
     <PackageReference Include="Orleans.Clustering.Kubernetes" Version="1.2.2" />

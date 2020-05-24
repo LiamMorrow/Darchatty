@@ -1,0 +1,31 @@
+@page "/login"
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@inject IAuthorizationService AuthorizationService
+<h1>Login</h1>
+<button @onclick="OnLoginButtonPress">Login</button>
+
+@code{
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationStateTask { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationStateTask == null)
+        {
+            return;
+        }
+
+        var user = (await authenticationStateTask).User;
+
+        if (user?.Identity?.IsAuthenticated == true)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task OnLoginButtonPress()
+    {
+        await LocalStorage.SetItemAsync("userId", Guid.NewGuid().ToString());
+        NavigationManager.NavigateTo("/");
+    }
+}

@@ -1,0 +1,12 @@
+@foreach(var message in Messages.Reverse()){
+    <h2>@Participants.GetValueOrDefault(message.SenderUserId)?.ParticipantName??"Unknown Sender"</h2>
+    <p>@message.MessageContentsRaw</p>
+}
+<p>@Messages.Count()</p>
+@code {
+    [Parameter]
+    public IEnumerable<ChatMessageDto> Messages { get; set; } = null!;
+
+    [Parameter]
+    public IReadOnlyDictionary<Guid, ParticipantState> Participants { get; set; } = null!;
+}

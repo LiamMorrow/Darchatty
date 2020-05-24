@@ -3,11 +3,10 @@ using System.Threading.Tasks;
 using Darchatty.Orleans.GrainInterfaces;
 using Darchatty.Orleans.GrainInterfaces.Model;
 using Darchatty.Orleans.Grains.State;
-using Orleans;
 
 namespace Darchatty.Orleans.Grains
 {
-    public class ChatMessageGrain : TimedPersistGrain<ChatMessageGrainState?>, IChatMessageGrain
+    public class ChatMessageGrain : TimedPersistGrain<ChatMessageGrainState>, IChatMessageGrain
     {
         public Task<ChatMessage> GetMessageInfoAsync()
         {
@@ -15,7 +14,6 @@ namespace Darchatty.Orleans.Grains
             return Task.FromResult(
                 new ChatMessage
                 {
-                    MessageId = this.GetPrimaryKey(),
                     ChatMessageNumber = State?.ChatMessageNumber ?? -1,
                     SenderUserId = State?.SenderUserId ?? default,
                     SendTime = State?.SendTime ?? default,

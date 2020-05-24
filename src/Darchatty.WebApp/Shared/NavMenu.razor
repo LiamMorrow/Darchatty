@@ -1,4 +1,5 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inject IChatHub ChatHub
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Darchatty</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -8,20 +9,18 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="/create-chat" Match="NavLinkMatch.All">
+                <span class="oi oi-pencil" aria-hidden="true"></span> Create New Chat
             </NavLink>
         </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>
+        @foreach (var chat in State.Chats.Values)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href=@($"/chat/{chat.ChatId}") Match="NavLinkMatch.All">
+                    <span class="oi oi-justify-left" aria-hidden="true"></span> @chat.ChatName
+                </NavLink>
+            </li>
+        }
     </ul>
 </div>
 
@@ -29,6 +28,9 @@
     private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    [CascadingParameter]
+    public State State { get; set; } = null!;
 
     private void ToggleNavMenu()
     {

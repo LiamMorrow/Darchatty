@@ -9,9 +9,9 @@ using Orleans;
 
 namespace Darchatty.Orleans.Grains
 {
-    public class ChatGrain : TimedPersistGrain<ChatGrainState?>, IChatGrain
+    public class ChatGrain : TimedPersistGrain<ChatGrainState>, IChatGrain
     {
-        public async Task<IEnumerable<ChatMessage>> GetMessagesAsync(int lastMessageIndex, int count)
+        public Task<List<IChatMessageGrain>> GetMessagesAsync(int count, int latestMessageIndex = -1)
         {
             if (count <= 0)
             {
@@ -20,35 +20,78 @@ namespace Darchatty.Orleans.Grains
 
             if (State == null || State.MessageCount == 0)
             {
-                return Enumerable.Empty<ChatMessage>();
+                return Task.FromResult(new List<IChatMessageGrain>());
             }
 
-            if (lastMessageIndex < 0)
+            if (latestMessageIndex < 0)
             {
-                lastMessageIndex = State.MessageCount;
+                latestMessageIndex = State.MessageCount;
             }
 
-            var messageGrains = Enumerable.Range(Math.Max(lastMessageIndex - count, 1), lastMessageIndex - 1).Reverse()
+            var messageGrains = GetDescendingRange(latestMessageIndex, Math.Max(1, latestMessageIndex - count))
                 .Select(messageIndex => GrainFactory.GetGrain<IChatMessageGrain>(messageIndex, this.GetPrimaryKeyString()));
 
-            var messageTasks = messageGrains.Select(grain => grain.GetMessageInfoAsync());
-            await Task.WhenAll(messageTasks);
-
-            return messageTasks.Select(x => x.Result).ToList();
+            return Task.FromResult(messageGrains.ToList());
         }
 
         public async Task SendMessageAsync(SendChatMessage message)
         {
-            State ??= NewState();
+            State.Participants ??= new HashSet<Guid>();
+            State.Participants.Add(message.SenderUserId);
             var messageIndex = State.MessageCount + 1;
             var messageGrain = GrainFactory.GetGrain<IChatMessageGrain>(messageIndex, this.GetPrimaryKeyString());
             await messageGrain.UpdateMessageDetailsAsync(message, messageIndex);
             State.MessageCount++;
+            Dirty = true;
         }
 
-        private ChatGrainState NewState() => new ChatGrainState
+        public Task<ChatDetails> GetChatDetailsAsync()
         {
-            MessageCount = 0,
-        };
+            // AssignAll enable
+            return Task.FromResult(
+                new ChatDetails
+                {
+                    ChatId = Guid.Parse(this.GetPrimaryKeyString()),
+                    ChatName = State.ChatName ?? "Unnamed Chat",
+                    Participants = State.Participants?.ToHashSet() ?? new HashSet<Guid>(),
+                });
+        }
+
+        public Task RemoveParticipantFromChatAsync(Guid participantId)
+        {
+            State.Participants ??= new HashSet<Guid>();
+            if (State.Participants.Remove(participantId))
+            {
+                Dirty = true;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task AddParticipantToChatAsync(Guid participantId)
+        {
+            State.Participants ??= new HashSet<Guid>();
+            if (State.Participants.Add(participantId))
+            {
+                Dirty = true;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task UpdateChatDetailsAsync(string chatName)
+        {
+            State.ChatName = chatName;
+            Dirty = true;
+            return Task.CompletedTask;
+        }
+
+        private IEnumerable<int> GetDescendingRange(int from, int downTo)
+        {
+            for (var i = from; i >= downTo; i--)
+            {
+                yield return i;
+            }
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Darchatty.Orleans.GrainInterfaces.Model;
@@ -7,8 +8,16 @@ namespace Darchatty.Orleans.GrainInterfaces
 {
     public interface IChatGrain : IGrainWithStringKey
     {
-         Task<IEnumerable<ChatMessage>> GetMessagesAsync(int lastMessageIndex, int count);
+        Task<List<IChatMessageGrain>> GetMessagesAsync(int count, int lastMessageIndex = -1);
 
-         Task SendMessageAsync(SendChatMessage message);
+        Task SendMessageAsync(SendChatMessage message);
+
+        Task<ChatDetails> GetChatDetailsAsync();
+
+        Task UpdateChatDetailsAsync(string chatName);
+
+        Task RemoveParticipantFromChatAsync(Guid participantId);
+
+        Task AddParticipantToChatAsync(Guid participantId);
     }
 }

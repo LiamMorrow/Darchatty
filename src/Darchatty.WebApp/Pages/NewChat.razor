@@ -1,0 +1,27 @@
+@page "/create-chat"
+@inject IChatHub ChatHub
+@inject StateService StateService
+@attribute [Authorize]
+
+<h1>New Chat</h1>
+<label for="chat-name">Chat Name:</label>
+<input name="chat-name" @bind="ChatName" @bind:event="oninput"/>
+<button @onclick="OnCreateChatButtonClick">Create</button>
+
+@code {
+    [Parameter]
+    public Guid ChatId { get; set; }
+
+    [CascadingParameter]
+    public State State { get; set; } = null!;
+
+    private string ChatName = string.Empty;
+
+    private async Task OnCreateChatButtonClick()
+    {
+        if(!string.IsNullOrWhiteSpace(ChatName))
+        {
+            await ChatHub.CreateChatAsync(ChatName);
+        }
+    }
+}

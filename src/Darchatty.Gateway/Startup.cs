@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Darchatty.Gateway.Hubs;
 using Darchatty.Orleans.GrainInterfaces;
+using Darchatty.Web.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -37,10 +38,11 @@ namespace Darchatty.Gateway
                     })
                     .UseOrgnalR()
                     .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IChatGrain).Assembly))
+                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(ChatMessageDto).Assembly).WithReferences())
                     .ConfigureLogging(x => x.AddConsole());
                 if (configuration.GetValue("OrleansClusteringMode", "local") == "local")
                 {
-                    clientBuilder.UseLocalhostClustering(serviceId: "darchatty", clusterId: "darchatty-cluster");
+                    clientBuilder.UseLocalhostClustering();
                 }
                 else
                 {
@@ -50,7 +52,8 @@ namespace Darchatty.Gateway
                 return clientBuilder.Build();
             });
             services.AddSignalR()
-                .UseOrgnalR();
+                .UseOrgnalR()
+                .AddNewtonsoftJsonProtocol();
 
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
             {

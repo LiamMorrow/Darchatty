@@ -1,10 +1,38 @@
-<Router AppAssembly="@typeof(Program).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-    </Found>
-    <NotFound>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p>Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
+@inject StateService StateService
+<CascadingValue Value="StateService.State">
+    <Router AppAssembly="@typeof(Program).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <RedirectToLogin />
+                </NotAuthorized>
+                <Authorizing>
+                    <h1>Authentication in progress</h1>
+                    <p>Only visible while authentication is in progress.</p>
+                </Authorizing>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingValue>
+@code{
+    protected override void OnInitialized()
+    {
+        StateService.PropertyChanged += StateChangedHandler;
+        base.OnInitialized();
+    }
+
+    public void Dispose()
+    {
+        StateService.PropertyChanged -= StateChangedHandler;
+    }
+
+    private void StateChangedHandler(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+}

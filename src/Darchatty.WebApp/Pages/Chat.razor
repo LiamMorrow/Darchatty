@@ -1,0 +1,34 @@
+@page "/chat/{ChatIdStr}"
+@inject IChatHub ChatHub
+@inject NavigationManager NavigationManager
+@inject StateService StateService
+@attribute [Authorize]
+
+<h1>Chat</h1>
+
+@if(State.UserId != null)
+{
+    <p>Hello <NameDisplay Name=@State.Participants.GetValueOrDefault(State.UserId.Value)?.ParticipantName/></p>
+}
+@if(State.Chats.ContainsKey(ChatId))
+{
+    <ChatDisplay ChatState=@State.Chats[ChatId] Participants=@State.Participants></ChatDisplay>
+}
+
+@code {
+    [Parameter]
+    public string ChatIdStr { get; set; } = null!;
+
+    [CascadingParameter]
+    public State State { get; set; } = null!;
+
+    private Guid ChatId => Guid.Parse(ChatIdStr);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var chatInfo = await ChatHub.GetChatInfoAsync(ChatId);
+        var messages = await ChatHub.GetMessagesAsync(ChatId);
+        StateService.UpdateChatState(new ChatState(ChatId, chatInfo.ChatName, messages, chatInfo.ParticipantIds));
+    }
+
+}
