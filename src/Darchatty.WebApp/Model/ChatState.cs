@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Darchatty.Web.Model;
 
 namespace Darchatty.WebApp.Model
 {
-    public class ChatState
+    public class ChatState : IEquatable<ChatState>
     {
-        public ChatState(Guid chatId, string chatName, IEnumerable<ChatMessageDto> messages, ISet<Guid> participantIds)
+        public ChatState(Guid chatId, string chatName, ImmutableList<ChatMessageDto> messages, ImmutableHashSet<Guid> participantIds)
         {
             ChatId = chatId;
             ChatName = chatName;
@@ -18,8 +20,26 @@ namespace Darchatty.WebApp.Model
 
         public string ChatName { get; }
 
-        public IEnumerable<ChatMessageDto> Messages { get; }
+        public IReadOnlyList<ChatMessageDto> Messages { get; }
 
-        public ISet<Guid> ParticipantIds { get; }
+        public IImmutableSet<Guid> ParticipantIds { get; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ChatState other && Equals(other);
+        }
+
+        public bool Equals(ChatState other)
+        {
+            return ChatId.Equals(other.ChatId) &&
+                   ChatName == other.ChatName &&
+                   Messages.SequenceEqual(other.Messages) &&
+                   ParticipantIds.SetEquals(other.ParticipantIds);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(ChatId, ChatName, Messages, ParticipantIds);
+        }
     }
 }

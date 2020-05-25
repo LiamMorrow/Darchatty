@@ -1,7 +1,7 @@
 @inject IChatHub Chat
 
 @foreach(var message in ChatState.Messages.Reverse()){
-    <h2>@Participants.GetValueOrDefault(message.SenderUserId)?.ParticipantName</h2>
+    <h3>@Participants.GetValueOrDefault(message.SenderUserId)?.ParticipantName</h3>
     <p>@message.MessageContentsRaw</p>
 }
 <label for="message-text">Message:</label>

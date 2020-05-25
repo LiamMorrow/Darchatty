@@ -7,6 +7,6 @@ namespace Darchatty.Web.Clients
 {
     public interface IChatClient
     {
-        Task NewChatInfoAsync(Guid chatId);
+        Task NewChatInfoAsync(string chatId);
     }
 }

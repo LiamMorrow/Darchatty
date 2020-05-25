@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
+using Darchatty.Web.Clients;
 using Darchatty.Web.Hubs;
 using Darchatty.WebApp.Auth;
 using Darchatty.WebApp.Configuration;
@@ -25,7 +26,9 @@ namespace Darchatty.WebApp
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddSingleton<IChatHub, ChatHubClient>();
+            builder.Services.AddSingleton<ChatHubClient>();
+            builder.Services.AddSingleton<IChatHub>(s => s.GetRequiredService<ChatHubClient>());
+            builder.Services.AddSingleton<IChatClient>(s => s.GetRequiredService<ChatHubClient>());
             builder.Services.AddSingleton<StateService>();
             builder.Services.AddSingleton(new GatewayConfiguration
             {

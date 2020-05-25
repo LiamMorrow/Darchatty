@@ -7,11 +7,13 @@ using Darchatty.Orleans.GrainInterfaces.Model;
 using Darchatty.Web.Clients;
 using Darchatty.Web.Hubs;
 using Darchatty.Web.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
 
 namespace Darchatty.Gateway.Hubs
 {
+    [Authorize]
     public class ChatHub : Hub<IChatClient>, IChatHub
     {
         private readonly IGrainFactory grainFactory;
@@ -21,9 +23,10 @@ namespace Darchatty.Gateway.Hubs
             this.grainFactory = grainFactory;
         }
 
-        public Task<List<ChatMessageDto>> GetMessagesAsync(Guid chatId)
+        public async Task<List<ChatMessageDto>> GetMessagesAsync(Guid chatId)
         {
-            return GetLatestChatMessagesAsync(chatId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
+            return await GetLatestChatMessagesAsync(chatId);
         }
 
         public async Task SendMessageAsync(Guid chatId, string messageContentsRaw)
@@ -34,7 +37,7 @@ namespace Darchatty.Gateway.Hubs
                 MessageContentsRaw = messageContentsRaw,
                 SenderUserId = GetUserId(),
             });
-            await Clients.Caller.NewChatInfoAsync(chatId);
+            await Clients.Group(chatId.ToString()).NewChatInfoAsync(chatId.ToString());
         }
 
         public async Task<List<ChatDto>> GetParticipatingChatsAsync()
@@ -66,6 +69,7 @@ namespace Darchatty.Gateway.Hubs
         {
             var chatGrain = grainFactory.GetGrain<IChatGrain>(chatId.ToString());
             var chat = await chatGrain.GetChatDetailsAsync();
+            await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
             return new ChatDto
             {
                 ChatId = chatId,
@@ -82,7 +86,7 @@ namespace Darchatty.Gateway.Hubs
             await chatGrain.UpdateChatDetailsAsync(chatName);
             await chatGrain.AddParticipantToChatAsync(GetUserId());
             await userGrain.AddToParticipatingChatsAsync(chatId);
-            await Clients.Caller.NewChatInfoAsync(chatId);
+            await Clients.Caller.NewChatInfoAsync(chatId.ToString());
         }
 
         private async Task<List<ChatMessageDto>> GetLatestChatMessagesAsync(Guid chatId)
@@ -105,7 +109,7 @@ namespace Darchatty.Gateway.Hubs
 
         private Guid GetUserId()
         {
-            return default;
+            return Guid.Parse(Context.UserIdentifier);
         }
     }
 }

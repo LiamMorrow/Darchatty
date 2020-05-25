@@ -1,5 +1,6 @@
 @page "/chat/{ChatIdStr}"
 @inject IChatHub ChatHub
+@inject IChatClient ChatClient
 @inject NavigationManager NavigationManager
 @inject StateService StateService
 @attribute [Authorize]
@@ -26,9 +27,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var chatInfo = await ChatHub.GetChatInfoAsync(ChatId);
-        var messages = await ChatHub.GetMessagesAsync(ChatId);
-        StateService.UpdateChatState(new ChatState(ChatId, chatInfo.ChatName, messages, chatInfo.ParticipantIds));
+        await ChatClient.NewChatInfoAsync(ChatIdStr).ConfigureAwait(false);
     }
 
 }

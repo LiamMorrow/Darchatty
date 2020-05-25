@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Darchatty.Gateway.Auth;
 using Darchatty.Gateway.Hubs;
 using Darchatty.Orleans.GrainInterfaces;
 using Darchatty.Web.Model;
@@ -63,6 +64,9 @@ namespace Darchatty.Gateway
                     .SetIsOriginAllowed(s => true)
                     .AllowCredentials();
             }));
+
+            services.AddAuthentication("Basic")
+                    .AddScheme<BasicAuthenticationOptions, BasicAuthenticationHandler>("Basic", null);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -88,6 +92,8 @@ namespace Darchatty.Gateway
 
             app.UseRouting();
             app.UseCors("CorsPolicy");
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
