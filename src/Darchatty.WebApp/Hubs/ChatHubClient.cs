@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Darchatty.Web.Clients;
 using Darchatty.Web.Hubs;
@@ -12,11 +10,8 @@ using Darchatty.WebApp.Configuration;
 using Darchatty.WebApp.Model;
 using Darchatty.WebApp.Service;
 using Darchatty.WebApp.Shared;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.DependencyInjection;
-using Nito.AsyncEx;
 
 namespace Darchatty.WebApp.Hubs
 {
@@ -24,8 +19,7 @@ namespace Darchatty.WebApp.Hubs
     {
         private readonly HubConnection hubConnection;
         private readonly StateService stateService;
-        private readonly AsyncReaderWriterLock readerWriterLock = new AsyncReaderWriterLock();
-        private volatile int started;
+        private bool connected;
 
         public ChatHubClient(
             GatewayConfiguration gatewayConfiguration,
@@ -44,51 +38,68 @@ namespace Darchatty.WebApp.Hubs
                     opts.Transports = HttpTransportType.WebSockets;
                 })
                 .Build();
-            Action stateChangeHandler = () =>
+            Action userIdChangeHandler = () =>
             {
                 _ = Task.Run(async () =>
                   {
-                      using var l = await readerWriterLock.WriterLockAsync();
-                      await hubConnection.StopAsync();
-                      if (stateService.State.UserId == null)
+                      try
                       {
-                          started = 0;
-                          return;
-                      }
+                          if (connected)
+                          {
+                              connected = false;
+                              await hubConnection.StopAsync();
+                          }
 
-                      await StartOrNoopAsync();
+                          if (stateService.State.UserId != null)
+                          {
+                              await hubConnection.StartAsync();
+                              connected = true;
+                          }
+                      }
+                      catch (Exception ex)
+                      {
+                          Console.WriteLine(ex);
+                      }
                   });
             };
-            stateChangeHandler = stateChangeHandler.Debounce(1000);
+            userIdChangeHandler = userIdChangeHandler.Debounce(1000);
 
             hubConnection.On<string>(nameof(NewChatInfoAsync), NewChatInfoAsync);
+            hubConnection.Closed += _ =>
+            {
+                connected = false;
+                return Task.CompletedTask;
+            };
+            hubConnection.Reconnected += (e) =>
+            {
+                connected = true;
+                return Task.CompletedTask;
+            };
+
             stateService.PropertyChanged += (o, e) =>
             {
-                if (started == 1 && e.PropertyName == nameof(stateService.State.UserId))
+                if (e.PropertyName == nameof(stateService.State.UserId))
                 {
-                    stateChangeHandler();
+                    userIdChangeHandler();
                 }
             };
         }
 
         public async Task<List<ChatMessageDto>> GetMessagesAsync(Guid chatId)
         {
-            await StartOrNoopAsync().ConfigureAwait(false);
-            using var l = await readerWriterLock.ReaderLockAsync().ConfigureAwait(false);
+            await EnsureConnectedAsync().ConfigureAwait(false);
             return await hubConnection.InvokeAsync<List<ChatMessageDto>>(nameof(GetMessagesAsync), chatId).ConfigureAwait(false);
         }
 
         public async Task<string> GetNameAsync(Guid userId)
         {
-            await StartOrNoopAsync().ConfigureAwait(false);
-            using var l = await readerWriterLock.ReaderLockAsync().ConfigureAwait(false);
+            await EnsureConnectedAsync().ConfigureAwait(false);
             return await hubConnection.InvokeAsync<string>(nameof(GetNameAsync), userId).ConfigureAwait(false);
         }
 
         public async Task SendMessageAsync(Guid chatId, string messageContentsRaw)
         {
-            await StartOrNoopAsync().ConfigureAwait(false);
-            using var l = await readerWriterLock.ReaderLockAsync().ConfigureAwait(false);
+            await EnsureConnectedAsync().ConfigureAwait(false);
             await hubConnection.InvokeAsync(nameof(SendMessageAsync), chatId, messageContentsRaw).ConfigureAwait(false);
         }
 
@@ -117,41 +128,69 @@ namespace Darchatty.WebApp.Hubs
 
         public async Task<ParticipantDto> GetParticipantInfoAsync(Guid participantId)
         {
-            await StartOrNoopAsync().ConfigureAwait(false);
-            using var l = await readerWriterLock.ReaderLockAsync().ConfigureAwait(false);
+            await EnsureConnectedAsync().ConfigureAwait(false);
             return await hubConnection.InvokeAsync<ParticipantDto>(nameof(GetParticipantInfoAsync), participantId)
                 .ConfigureAwait(false);
         }
 
         public async Task<ChatDto> GetChatInfoAsync(Guid chatId)
         {
-            await StartOrNoopAsync().ConfigureAwait(false);
-            using var l = await readerWriterLock.ReaderLockAsync().ConfigureAwait(false);
+            await EnsureConnectedAsync().ConfigureAwait(false);
             return await hubConnection.InvokeAsync<ChatDto>(nameof(GetChatInfoAsync), chatId)
                 .ConfigureAwait(false);
         }
 
         public async Task<List<ChatDto>> GetParticipatingChatsAsync()
         {
-            await StartOrNoopAsync().ConfigureAwait(false);
-            using var l = await readerWriterLock.ReaderLockAsync().ConfigureAwait(false);
+            await EnsureConnectedAsync().ConfigureAwait(false);
             return await hubConnection.InvokeAsync<List<ChatDto>>(nameof(GetParticipatingChatsAsync))
                 .ConfigureAwait(false);
         }
 
         public async Task CreateChatAsync(string chatName)
         {
-            await StartOrNoopAsync().ConfigureAwait(false);
-            using var l = await readerWriterLock.ReaderLockAsync().ConfigureAwait(false);
+            await EnsureConnectedAsync().ConfigureAwait(false);
             await hubConnection.InvokeAsync(nameof(CreateChatAsync), chatName).ConfigureAwait(false);
         }
 
-        private async ValueTask StartOrNoopAsync()
+        private async ValueTask EnsureConnectedAsync()
         {
-            if (Interlocked.CompareExchange(ref started, 1, 0) == 0)
+            if (connected)
             {
-                await hubConnection.StartAsync().ConfigureAwait(false);
+                return;
             }
+
+            await Task.Delay(50).ConfigureAwait(false);
+            if (connected)
+            {
+                return;
+            }
+
+            await Task.Delay(100).ConfigureAwait(false);
+            if (connected)
+            {
+                return;
+            }
+
+            await Task.Delay(200).ConfigureAwait(false);
+            if (connected)
+            {
+                return;
+            }
+
+            await Task.Delay(400).ConfigureAwait(false);
+            if (connected)
+            {
+                return;
+            }
+
+            await Task.Delay(800).ConfigureAwait(false);
+            if (connected)
+            {
+                return;
+            }
+
+            throw new InvalidOperationException("Not connected to the server!");
         }
     }
 }

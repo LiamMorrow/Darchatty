@@ -32,6 +32,7 @@ namespace Darchatty.Gateway.Hubs
         public async Task SendMessageAsync(Guid chatId, string messageContentsRaw)
         {
             var chatGrain = grainFactory.GetGrain<IChatGrain>(chatId.ToString());
+            await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
             await chatGrain.SendMessageAsync(new SendChatMessage
             {
                 MessageContentsRaw = messageContentsRaw,

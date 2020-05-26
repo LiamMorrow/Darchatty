@@ -7,6 +7,7 @@
 <label for="chat-name">Chat Name:</label>
 <input name="chat-name" @bind="ChatName" @bind:event="oninput"/>
 <button @onclick="OnCreateChatButtonClick">Create</button>
+<p>@Error</p>
 
 @code {
     [Parameter]
@@ -17,11 +18,20 @@
 
     private string ChatName = string.Empty;
 
+    private string? Error { get; set; }
+
     private async Task OnCreateChatButtonClick()
     {
-        if(!string.IsNullOrWhiteSpace(ChatName))
+        if (!string.IsNullOrWhiteSpace(ChatName))
         {
-            await ChatHub.CreateChatAsync(ChatName);
+            try
+            {
+                await ChatHub.CreateChatAsync(ChatName);
+            }
+            catch (InvalidOperationException)
+            {
+                Error = "Not connected to server!  Please try again.";
+           }
         }
     }
 }

@@ -7,6 +7,7 @@
 <label for="message-text">Message:</label>
 <input name="message-text" @bind="MessageText" @bind:event="oninput"/>
 <button @onclick="OnSendButtonClick">Send new message</button>
+<p>@Error</p>
 @code {
     [Parameter]
     public ChatState ChatState { get; set; } = null!;
@@ -16,8 +17,18 @@
 
     private string MessageText { get; set; } = string.Empty;
 
-    private Task OnSendButtonClick()
+    private string? Error { get; set; } = null;
+
+    private async Task OnSendButtonClick()
     {
-        return Chat.SendMessageAsync(ChatState.ChatId, MessageText);
+        try
+        {
+            await Chat.SendMessageAsync(ChatState.ChatId, MessageText);
+            Error = null;
+        }
+        catch (InvalidOperationException)
+        {
+            Error = "Not connected!  Please try again!";
+        }
     }
 }

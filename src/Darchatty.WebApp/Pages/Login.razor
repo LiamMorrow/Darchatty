@@ -8,6 +8,9 @@
 @code{
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationStateTask { get; set; }
+
+    [CascadingParameter]
+    private State? State { get; set; }
     protected override async Task OnInitializedAsync()
     {
         if (authenticationStateTask == null)
@@ -17,15 +20,15 @@
 
         var user = (await authenticationStateTask).User;
 
-        if (user?.Identity?.IsAuthenticated == true)
+        if (user?.Identity?.IsAuthenticated == true && State?.UserId != null)
         {
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/create-chat");
         }
     }
 
     private async Task OnLoginButtonPress()
     {
         await LocalStorage.SetItemAsync("userId", Guid.NewGuid().ToString());
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/create-chat");
     }
 }

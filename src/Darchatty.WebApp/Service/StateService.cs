@@ -26,7 +26,7 @@ namespace Darchatty.WebApp.Service
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(State.Chats)));
         }
 
-        public void UpdateUserId(Guid userId)
+        public void UpdateUserId(Guid? userId)
         {
             if (userId == State.UserId)
             {

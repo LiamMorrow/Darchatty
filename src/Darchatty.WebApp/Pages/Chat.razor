@@ -27,7 +27,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await ChatClient.NewChatInfoAsync(ChatIdStr).ConfigureAwait(false);
+        try
+        {
+            await ChatClient.NewChatInfoAsync(ChatIdStr).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException)
+        {
+            // Do nothing for now
+        }
     }
 
 }

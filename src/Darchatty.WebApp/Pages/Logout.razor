@@ -1,12 +1,14 @@
 @page "/logout"
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject NavigationManager NavigationManager
+@inject StateService StateService
 <p>Logging out.</p>
 
 @code{
     protected override async Task OnInitializedAsync()
     {
         await LocalStorage.RemoveItemAsync("userId");
+        StateService.UpdateUserId(null);
         NavigationManager.NavigateTo("/login");
     }
 
