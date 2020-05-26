@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Darchatty.Data;
+using Darchatty.Data.Model;
 using Darchatty.Orleans.Grains;
 using Darchatty.Web.Model;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,8 +21,10 @@ namespace Darchatty.Orleans.Silo
     public class Program
     {
         public static Task Main(string[] args)
-        {
-            return Host.CreateDefaultBuilder(args)
+        => CreateHostBuilder(args).Build().RunAsync();
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((host, builder) =>
                 {
                     builder
@@ -43,8 +49,24 @@ namespace Darchatty.Orleans.Silo
                     ConfigureClustering(siloBuilder, context.Configuration);
                     ConfigureStorage(siloBuilder, context.Configuration);
                 })
-                .RunConsoleAsync();
-        }
+                .ConfigureServices((host, services) =>
+                {
+                    services.AddDbContextPool<UserDbContext>(options =>
+                        options.UseNpgsql(
+                            host.Configuration.GetConnectionString("UserDbContext"),
+                            assembly => assembly.MigrationsAssembly(typeof(UserDbContext).Assembly.FullName)));
+                    services.Configure<IdentityOptions>(opts =>
+                    {
+                        opts.Password.RequireDigit = false;
+                        opts.Password.RequiredLength = 1;
+                        opts.Password.RequireLowercase = false;
+                        opts.Password.RequireNonAlphanumeric = false;
+                        opts.Password.RequireUppercase = false;
+                    });
+                    services.AddIdentity<UserDao, IdentityRole>()
+                        .AddEntityFrameworkStores<UserDbContext>()
+                        .AddUserManager<UserManager<UserDao>>();
+                });
 
         private static void ConfigureStorage(ISiloBuilder siloBuilder, IConfiguration configuration)
         {

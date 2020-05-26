@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Darchatty.Data.Model;
 using Darchatty.Orleans.GrainInterfaces;
 using Darchatty.Orleans.GrainInterfaces.Model;
 using Darchatty.Orleans.Grains.State;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using Orleans;
 
 namespace Darchatty.Orleans.Grains
@@ -43,6 +46,19 @@ namespace Darchatty.Orleans.Grains
                 {
                     Name = State?.Name ?? "Unknown user",
                 });
+        }
+
+        public async Task<bool> PasswordMatchesAsync(string password)
+        {
+            using var scope = ServiceProvider.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserDao>>();
+            var user = await userManager.FindByIdAsync(this.GetPrimaryKey().ToString());
+            if (user == null)
+            {
+                return false;
+            }
+
+            return await userManager.CheckPasswordAsync(user, password);
         }
 
         public Task RemoveFromPartitipatingChatAsync(Guid chatId)

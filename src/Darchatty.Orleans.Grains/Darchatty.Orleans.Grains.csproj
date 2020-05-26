@@ -2,9 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Darchatty.Orleans.GrainInterfaces\Darchatty.Orleans.GrainInterfaces.csproj" />
+    <ProjectReference Include="..\Darchatty.Data\Darchatty.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.1.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

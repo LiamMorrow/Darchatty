@@ -17,5 +17,7 @@ namespace Darchatty.Orleans.GrainInterfaces
         Task AddToParticipatingChatsAsync(Guid chatId);
 
         Task RemoveFromPartitipatingChatAsync(Guid chatId);
+
+        Task<bool> PasswordMatchesAsync(string password);
     }
 }

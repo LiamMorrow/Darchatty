@@ -6,11 +6,6 @@
 @attribute [Authorize]
 
 <h1>Chat</h1>
-
-@if(State.UserId != null)
-{
-    <p>Hello <NameDisplay Name=@State.Participants.GetValueOrDefault(State.UserId.Value)?.ParticipantName/></p>
-}
 @if(State.Chats.ContainsKey(ChatId))
 {
     <ChatDisplay ChatState=@State.Chats[ChatId] Participants=@State.Participants></ChatDisplay>

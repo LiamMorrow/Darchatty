@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Darchatty.Gateway.Auth;
+using Darchatty.Gateway.Controllers;
 using Darchatty.Gateway.Hubs;
 using Darchatty.Orleans.GrainInterfaces;
 using Darchatty.Web.Model;
@@ -67,6 +68,7 @@ namespace Darchatty.Gateway
 
             services.AddAuthentication("Basic")
                     .AddScheme<BasicAuthenticationOptions, BasicAuthenticationHandler>("Basic", null);
+            services.AddControllers();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -98,6 +100,7 @@ namespace Darchatty.Gateway
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<ChatHub>("/chat");
+                endpoints.MapControllers();
             });
         }
     }
