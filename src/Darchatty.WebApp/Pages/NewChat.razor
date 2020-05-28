@@ -1,12 +1,32 @@
 @page "/create-chat"
 @inject IChatHub ChatHub
 @inject StateService StateService
+@inject NavigationManager NavigationManager
 @attribute [Authorize]
 
 <h1>New Chat</h1>
-<label for="chat-name">Chat Name:</label>
-<input name="chat-name" @bind="ChatName" @bind:event="oninput"/>
-<button @onclick="OnCreateChatButtonClick">Create</button>
+<form onsubmit="return false">
+  <div class="form-group">
+    <label for="chat-name">Chat Name:</label>
+    <input name="chat-name" @bind="ChatName" @bind:event="oninput" class="form-control" placeholder="Enter chat name">
+  </div>
+  <div class="form-group">
+    <label for="search-users">Other People:</label>
+    <input  class="form-control" name="search-users" value="@SearchUserQuery" @oninput="OnSearchQueryChange" placeholder="Search users">
+  </div>
+@foreach(var participantId in SearchedParticipantIds.Concat(SelectedParticipantIds).Distinct())
+{
+    <br/>
+  <div class="form-check">
+  <input class="form-check-input" type="checkbox" name="@($"participant{participantId}")" @onchange="(e)=>ToggleParticipant(participantId)" checked="@SelectedParticipantIds.Contains(participantId)">
+  <label class="form-check-label" for="@($"participant{participantId}")">
+    @State.Participants[participantId]?.ParticipantName
+  </label>
+  </div>
+}
+    <br/>
+  <button type="submit" @onclick="OnCreateChatButtonClick" class="btn btn-primary">Create</button>
+</form>
 <p>@Error</p>
 
 @code {
@@ -18,7 +38,38 @@
 
     private string ChatName = string.Empty;
 
+    private string SearchUserQuery = string.Empty;
+
     private string? Error { get; set; }
+
+    private HashSet<Guid> SearchedParticipantIds { get; set; } = new HashSet<Guid>();
+
+    private HashSet<Guid> SelectedParticipantIds { get; set; } = new HashSet<Guid>();
+
+    private async Task OnSearchQueryChange(ChangeEventArgs e)
+    {
+        SearchUserQuery = e.Value.ToString();
+        if (SearchUserQuery != string.Empty)
+        {
+            var searchedIds = await ChatHub.SearchUsersAsync(SearchUserQuery);
+            var unknownParticipants = searchedIds.Where(id => !State.Participants.ContainsKey(id));
+            var unknownParticipantInfo = await Task.WhenAll(unknownParticipants.Select(id => ChatHub.GetParticipantInfoAsync(id)));
+            StateService.UpdateParticipants(unknownParticipantInfo.Select(info => new ParticipantState(info.ParticipantId, info.ParticipantName)));
+            SearchedParticipantIds = searchedIds.ToHashSet();
+        }
+    }
+
+    private void ToggleParticipant(Guid participantId)
+    {
+        if (SelectedParticipantIds.Contains(participantId))
+        {
+            SelectedParticipantIds.Remove(participantId);
+        }
+        else
+        {
+            SelectedParticipantIds.Add(participantId);
+        }
+    }
 
     private async Task OnCreateChatButtonClick()
     {
@@ -26,12 +77,13 @@
         {
             try
             {
-                await ChatHub.CreateChatAsync(ChatName);
+                var chatId = await ChatHub.CreateChatAsync(ChatName, SelectedParticipantIds.ToList());
+                NavigationManager.NavigateTo("/chat/" + chatId);
             }
             catch (InvalidOperationException)
             {
                 Error = "Not connected to server!  Please try again.";
-           }
+            }
         }
     }
 }

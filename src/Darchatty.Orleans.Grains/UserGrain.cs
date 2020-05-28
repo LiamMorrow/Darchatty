@@ -9,9 +9,11 @@ using Darchatty.Orleans.Grains.State;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans;
+using Orleans.Providers;
 
 namespace Darchatty.Orleans.Grains
 {
+    [StorageProvider(ProviderName = "UserState")]
     public class UserGrain : TimedPersistGrain<UserGrainState>, IUserGrain
     {
         public Task AddToParticipatingChatsAsync(Guid chatId)

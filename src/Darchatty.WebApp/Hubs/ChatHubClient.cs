@@ -28,7 +28,7 @@ namespace Darchatty.WebApp.Hubs
             this.stateService = stateService;
             hubConnection = new HubConnectionBuilder()
                 .WithAutomaticReconnect()
-                .WithUrl(gatewayConfiguration.Endpoint + "/chat", opts =>
+                .WithUrl(gatewayConfiguration.Endpoint + "/hub/chat", opts =>
                 {
                     opts.AccessTokenProvider = () =>
                     {
@@ -147,10 +147,17 @@ namespace Darchatty.WebApp.Hubs
                 .ConfigureAwait(false);
         }
 
-        public async Task CreateChatAsync(string chatName)
+        public async Task<Guid> CreateChatAsync(string chatName, List<Guid> otherParticipants)
         {
             await EnsureConnectedAsync().ConfigureAwait(false);
-            await hubConnection.InvokeAsync(nameof(CreateChatAsync), chatName).ConfigureAwait(false);
+            return await hubConnection.InvokeAsync<Guid>(nameof(CreateChatAsync), chatName, otherParticipants).ConfigureAwait(false);
+        }
+
+        public async Task<List<Guid>> SearchUsersAsync(string query)
+        {
+            await EnsureConnectedAsync().ConfigureAwait(false);
+            return await hubConnection.InvokeAsync<List<Guid>>(nameof(SearchUsersAsync), query)
+                .ConfigureAwait(false);
         }
 
         private async ValueTask EnsureConnectedAsync()

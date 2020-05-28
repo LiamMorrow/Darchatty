@@ -1,9 +1,18 @@
 @page "/login"
+@inject IAuthHub AuthHub
+@inject StateService StateService
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject NavigationManager NavigationManager
 @inject IAuthorizationService AuthorizationService
+
 <h1>Login</h1>
-<button @onclick="OnLoginButtonPress">Login</button>
+<form onsubmit="return false">
+  <div class="form-group">
+    <label for="chat-name">Name:</label>
+    <input name="chat-name" @bind="Username" @bind:event="oninput" class="form-control" placeholder="Enter your name">
+  </div>
+  <button type="submit" @onclick="OnLoginButtonPress" class="btn btn-primary">Login</button>
+</form>
 
 @code{
     [CascadingParameter]
@@ -11,6 +20,9 @@
 
     [CascadingParameter]
     private State? State { get; set; }
+
+    private string Username = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         if (authenticationStateTask == null)
@@ -19,7 +31,6 @@
         }
 
         var user = (await authenticationStateTask).User;
-
         if (user?.Identity?.IsAuthenticated == true && State?.UserId != null)
         {
             NavigationManager.NavigateTo("/create-chat");
@@ -28,7 +39,16 @@
 
     private async Task OnLoginButtonPress()
     {
-        await LocalStorage.SetItemAsync("userId", Guid.NewGuid().ToString());
+        try
+        {
+            var userId = await AuthHub.LoginAsync(new LoginDto { Username = Username, Password = "pass123" });
+            await LocalStorage.SetItemAsync("userId", userId);
+        }
+        catch
+        {
+            var userId = await AuthHub.RegisterAsync(new RegisterDto { Username = Username, Password = "pass123" });
+            await LocalStorage.SetItemAsync("userId", userId);
+        }
         NavigationManager.NavigateTo("/create-chat");
     }
 }

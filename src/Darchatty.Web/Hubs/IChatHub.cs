@@ -17,6 +17,8 @@ namespace Darchatty.Web.Hubs
 
         Task<List<ChatDto>> GetParticipatingChatsAsync();
 
-        Task CreateChatAsync(string chatName);
+        Task<Guid> CreateChatAsync(string chatName, List<Guid> otherParticipants);
+
+        Task<List<Guid>> SearchUsersAsync(string query);
     }
 }

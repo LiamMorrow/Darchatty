@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Darchatty.Data;
 using Darchatty.Data.Model;
 using Darchatty.Orleans.Grains;
+using Darchatty.Orleans.Silo.Storage;
 using Darchatty.Web.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,8 @@ using Orleans;
 using Orleans.Clustering.Kubernetes;
 using Orleans.Configuration;
 using Orleans.Hosting;
+using Orleans.Runtime;
+using Orleans.Storage;
 
 namespace Darchatty.Orleans.Silo
 {
@@ -47,7 +50,7 @@ namespace Darchatty.Orleans.Silo
                         .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(ChatMessageDto).Assembly).WithReferences())
                         .ConfigureLogging(logging => { logging.AddConsole().SetMinimumLevel(LogLevel.Information); });
                     ConfigureClustering(siloBuilder, context.Configuration);
-                    ConfigureStorage(siloBuilder, context.Configuration);
+                    ConfigureStorage(siloBuilder);
                 })
                 .ConfigureServices((host, services) =>
                 {
@@ -68,12 +71,13 @@ namespace Darchatty.Orleans.Silo
                         .AddUserManager<UserManager<UserDao>>();
                 });
 
-        private static void ConfigureStorage(ISiloBuilder siloBuilder, IConfiguration configuration)
+        private static void ConfigureStorage(ISiloBuilder siloBuilder)
         {
-            if (configuration.GetValue("StorageMode", "memory") == "memory")
+            siloBuilder.AddMemoryGrainStorageAsDefault();
+            siloBuilder.ConfigureServices(services =>
             {
-                siloBuilder.AddMemoryGrainStorageAsDefault();
-            }
+                services.AddSingletonNamedService<IGrainStorage, UserStateGrainStorage>("UserState");
+            });
         }
 
         private static void ConfigureClustering(ISiloBuilder siloBuilder, IConfiguration configuration)

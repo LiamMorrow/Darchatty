@@ -79,15 +79,28 @@ namespace Darchatty.Gateway.Hubs
             };
         }
 
-        public async Task CreateChatAsync(string chatName)
+        public async Task<Guid> CreateChatAsync(string chatName, List<Guid> otherParticipants)
         {
             var chatId = Guid.NewGuid();
             var chatGrain = grainFactory.GetGrain<IChatGrain>(chatId.ToString());
-            var userGrain = grainFactory.GetGrain<IUserGrain>(GetUserId());
             await chatGrain.UpdateChatDetailsAsync(chatName);
-            await chatGrain.AddParticipantToChatAsync(GetUserId());
-            await userGrain.AddToParticipatingChatsAsync(chatId);
-            await Clients.Caller.NewChatInfoAsync(chatId.ToString());
+            var participantIds = otherParticipants.Append(GetUserId());
+            foreach (var participantId in participantIds)
+            {
+                var userGrain = grainFactory.GetGrain<IUserGrain>(participantId);
+                await chatGrain.AddParticipantToChatAsync(participantId);
+                await userGrain.AddToParticipatingChatsAsync(chatId);
+            }
+
+            await Clients.Users(participantIds.Select(x => x.ToString()).ToList()).NewChatInfoAsync(chatId.ToString());
+            return chatId;
+        }
+
+        public async Task<List<Guid>> SearchUsersAsync(string query)
+        {
+            var usersGrain = grainFactory.GetGrain<IUsersGrain>(0);
+            var users = await usersGrain.SearchUsersAsync(query);
+            return users.Select(x => x.GetPrimaryKey()).ToList();
         }
 
         private async Task<List<ChatMessageDto>> GetLatestChatMessagesAsync(Guid chatId)

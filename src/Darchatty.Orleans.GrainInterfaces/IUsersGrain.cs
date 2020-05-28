@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Orleans;
 
@@ -7,6 +8,8 @@ namespace Darchatty.Orleans.GrainInterfaces
     {
         Task<IUserGrain> GetUserWithUsernameAsync(string username);
 
-        Task CreateUserAsync(string username, string password);
+        Task<IUserGrain> CreateUserAsync(string username, string password);
+
+        Task<List<IUserGrain>> SearchUsersAsync(string query);
     }
 }

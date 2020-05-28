@@ -99,7 +99,8 @@ namespace Darchatty.Gateway
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<ChatHub>("/chat");
+                endpoints.MapHub<ChatHub>("/hub/chat");
+                endpoints.MapHub<AuthHub>("/hub/auth");
                 endpoints.MapControllers();
             });
         }

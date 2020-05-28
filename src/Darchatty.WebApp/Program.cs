@@ -29,6 +29,9 @@ namespace Darchatty.WebApp
             builder.Services.AddSingleton<ChatHubClient>();
             builder.Services.AddSingleton<IChatHub>(s => s.GetRequiredService<ChatHubClient>());
             builder.Services.AddSingleton<IChatClient>(s => s.GetRequiredService<ChatHubClient>());
+            builder.Services.AddSingleton<AuthHubClient>();
+            builder.Services.AddSingleton<IAuthHub>(s => s.GetRequiredService<AuthHubClient>());
+            builder.Services.AddSingleton<IAuthClient>(s => s.GetRequiredService<AuthHubClient>());
             builder.Services.AddSingleton<StateService>();
             builder.Services.AddSingleton(new GatewayConfiguration
             {
